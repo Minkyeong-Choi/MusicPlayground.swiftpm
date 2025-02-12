@@ -9,6 +9,9 @@ import SwiftUI
 
 struct InstSelectView: View {
     @Binding var isPlusClicked: Bool
+    @Binding var fileList: [(inst: String, fileURL: URL)]
+    @Binding var totalChannel: Int
+    @Binding var path: [String]
     
     var body: some View {
         ZStack {
@@ -40,7 +43,7 @@ struct InstSelectView: View {
                         
                     }.frame(width: 550)
                     HStack {
-                        NavigationLink(destination: BeatMakingView()){
+                        NavigationLink(destination: BeatMakingView(fileList: $fileList, totalChannel: $totalChannel, path: $path, isPlusClicked: $isPlusClicked)){
                             optionView(icon: "🥁", text: "Beat")
                                 .padding(.trailing, 20)
                         }
@@ -54,8 +57,10 @@ struct InstSelectView: View {
                             optionView(icon: "🎶", text: "Melody")
                         }
                     }
+                    
                 }
             }
+            
         }
     }
     
@@ -74,8 +79,4 @@ struct InstSelectView: View {
             }
         }
     }
-}
-
-#Preview {
-    InstSelectView(isPlusClicked: .constant(false))
 }

@@ -9,7 +9,12 @@ import SwiftUI
 import AVFoundation
 
 struct BeatMakingView: View {
+    @Environment(\.presentationMode) var presentationMode
     @StateObject private var recorder = BeatManager()
+    @Binding var fileList: [(inst: String, fileURL: URL)]
+    @Binding var totalChannel: Int
+    @Binding var path: [String]
+    @Binding var isPlusClicked: Bool
     let buttonLabels = ["🥁\nDrum", "👏\nClap", "🥛\nCup", "🚪\nKnocking", "🧊\nShaking Ice", "Perc"]
     
     var body: some View {
@@ -52,6 +57,20 @@ struct BeatMakingView: View {
                     .padding()
                 }
                 Spacer()
+                Button {
+                    // store beat data
+                    fileList.append((inst: "beat", fileURL: recorder.recordedFileURL))
+                    totalChannel += 1
+//                    path.removeLast()
+                    isPlusClicked = false
+                    presentationMode.wrappedValue.dismiss()
+                } label: {
+                    ZStack {
+                        Circle()
+                            .frame(width: 100)
+                        Text("Finish")
+                    }
+                }
             }
             
             
@@ -63,8 +82,8 @@ struct BeatMakingView: View {
     }
 }
 
-struct beatMakingView_Previews: PreviewProvider {
-    static var previews: some View {
-        BeatMakingView()
-    }
-}
+//struct beatMakingView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        BeatMakingView(fileList: .constant([]))
+//    }
+//}

@@ -17,10 +17,11 @@ class BeatManager: ObservableObject {
     @Published var isRecording = false
     @Published var beats: [BeatEvent] = []
     @Published var audioPlayers: [AVAudioPlayer] = []
+    @Published var recordedFileURL: URL = URL(fileURLWithPath: "")
     private var audioRecorder: AVAudioRecorder?
     
     private var startTime: TimeInterval?
-    var recordedFileURL: URL? // 저장된 파일 url
+//    var recordedFileURL: URL? // 저장된 파일 url
     
     init() {
         loadSounds()
@@ -48,7 +49,7 @@ class BeatManager: ObservableObject {
         isRecording = true
     }
     
-    func stopRecording() {
+    @MainActor func stopRecording() {
         isRecording = false
         saveBeatsToFile()
     }
@@ -63,11 +64,14 @@ class BeatManager: ObservableObject {
                 audioPlayers[index].play()
     }
     
+    @MainActor
     func saveBeatsToFile() {
             let fileName = "BeatTrack-\(UUID().uuidString).m4a"
             let fileURL = getDocumentsDirectory().appendingPathComponent(fileName)
-            
-            // 비트 데이터를 파일로 변환하는 로직 (추후 구현)
+        DispatchQueue.main.async {
+            self.recordedFileURL = fileURL // 저장된 파일 URL 업데이트
+            }
+        // 비트 데이터를 파일로 변환하는 로직 (추후 구현)
             print("비트 녹음 저장 완료! 위치: \(fileURL)")
         }
     

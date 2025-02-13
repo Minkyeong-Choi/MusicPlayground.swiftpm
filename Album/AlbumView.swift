@@ -8,29 +8,39 @@
 import SwiftUI
 
 struct AlbumView: View {
+    let background = Color(.background)
     @Binding var path: [String]
     
     var body: some View {
-        VStack {
-            HStack {
-                Button {
-                    path.removeAll()
-                } label: {
-                    ZStack {
-                        Circle()
-                            .foregroundStyle(.green)
-                            .frame(width: 80, height: 80)
-                        Image(systemName: "xmark")
-                            .font(.largeTitle)
-                            .bold()
-                            .foregroundStyle(.black)
+        ZStack {
+            background
+            
+            VStack {
+                HStack {
+                    Text("Your Songs")
+                        .foregroundStyle(Color(.mainText))
+                    
+                    Spacer()
+                    
+                    Button {
+                        path.removeAll()
+                    } label: {
+                        ZStack {
+                            Circle()
+                                .foregroundStyle(Color(.xButton))
+                                .frame(width: 80, height: 80)
+                            Image(systemName: "xmark")
+                                .font(.largeTitle)
+                                .bold()
+                                .foregroundStyle(Color(.xText))
+                        }
                     }
                 }
+                // Song's list
             }
-            Text("AlbumView")
-            
         }
         .navigationBarBackButtonHidden()
+        .ignoresSafeArea()
     }
 }
 

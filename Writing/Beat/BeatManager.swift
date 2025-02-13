@@ -80,9 +80,6 @@ class BeatManager: ObservableObject {
         ]
         
         do {
-            // 오디오 세션 설정
-                    try AVAudioSession.sharedInstance().setCategory(.playAndRecord, mode: .default)
-                    try AVAudioSession.sharedInstance().setActive(true)
             // AVAudioRecorder 초기화 및 설정
             audioRecorder = try AVAudioRecorder(url: fileURL, settings: settings)
             audioRecorder?.prepareToRecord()

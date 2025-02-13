@@ -8,7 +8,7 @@
 import SwiftUI
 import AVFoundation
 
-struct BeatEvent {
+struct BeatEvent: Codable {
     let index: Int     // 눌린 버튼 인덱스 (0~5)
     let timestamp: TimeInterval // 버튼을 누른 시간 (초)
 }
@@ -18,6 +18,7 @@ class BeatManager: ObservableObject {
     @Published var beats: [BeatEvent] = []
     @Published var audioPlayers: [AVAudioPlayer] = []
     @Published var recordedFileURL: URL = URL(fileURLWithPath: "")
+    @Published var isStoreFinished: Bool = true
     private var audioRecorder: AVAudioRecorder?
     
     private var startTime: TimeInterval?
@@ -27,6 +28,7 @@ class BeatManager: ObservableObject {
         loadSounds()
     }
     
+    // 1. sound 불러오기
     private func loadSounds() {
         print("initializer loaded,")
         let soundNames = ["kick", "snare", "hihat", "clap", "knock", "ice"]
@@ -51,6 +53,7 @@ class BeatManager: ObservableObject {
     
     @MainActor func stopRecording() {
         isRecording = false
+        isStoreFinished = false
         saveBeatsToFile()
     }
     
@@ -66,14 +69,46 @@ class BeatManager: ObservableObject {
     
     @MainActor
     func saveBeatsToFile() {
-            let fileName = "BeatTrack-\(UUID().uuidString).m4a"
-            let fileURL = getDocumentsDirectory().appendingPathComponent(fileName)
-        DispatchQueue.main.async {
-            self.recordedFileURL = fileURL // 저장된 파일 URL 업데이트
+        let fileName = "BeatTrack-\(UUID().uuidString).m4a"
+        let fileURL = getDocumentsDirectory().appendingPathComponent(fileName)
+        
+        let settings: [String: Any] = [
+            AVFormatIDKey: kAudioFormatMPEG4AAC,
+            AVSampleRateKey: 44100,
+            AVNumberOfChannelsKey: 2,
+            AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
+        ]
+        
+        do {
+            // 오디오 세션 설정
+                    try AVAudioSession.sharedInstance().setCategory(.playAndRecord, mode: .default)
+                    try AVAudioSession.sharedInstance().setActive(true)
+            // AVAudioRecorder 초기화 및 설정
+            audioRecorder = try AVAudioRecorder(url: fileURL, settings: settings)
+            audioRecorder?.prepareToRecord()
+            audioRecorder?.record()
+            
+            print("비트 녹음 시작!")
+            
+            // 입력된 비트 이벤트를 기반으로 사운드 재생 및 녹음
+            for beat in beats {
+                DispatchQueue.main.asyncAfter(deadline: .now() + beat.timestamp) {
+                    self.audioPlayers[beat.index].play()
+                }
             }
-        // 비트 데이터를 파일로 변환하는 로직 (추후 구현)
-            print("비트 녹음 저장 완료! 위치: \(fileURL)")
+            
+            // 일정 시간 후 녹음 종료
+            DispatchQueue.main.asyncAfter(deadline: .now() + 10) { // 5초 후 저장
+                self.audioRecorder?.stop()
+                self.recordedFileURL = fileURL
+                self.isStoreFinished = true
+                
+                print("비트 녹음 저장 완료! 위치: \(self.recordedFileURL)")
+            }
+        } catch {
+            print("비트 녹음 저장 실패: \(error.localizedDescription)")
         }
+    }
     
     // MARK: - 문서 폴더 경로 가져오기
         private func getDocumentsDirectory() -> URL {

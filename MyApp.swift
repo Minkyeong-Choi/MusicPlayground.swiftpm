@@ -13,7 +13,9 @@ struct MusicWritingApp: App {
         WindowGroup {
             HomeView()
                 .onAppear {
+                    
                     setupAudioSession()
+                    requestMicrophonePermissionIfNeeded()
                 }
         }
     }

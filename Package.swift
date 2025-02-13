@@ -30,6 +30,14 @@ let package = Package(
                 .landscapeRight,
                 .landscapeLeft,
                 .portraitUpsideDown(.when(deviceFamilies: [.pad]))
+            ],
+            capabilities: [
+                .microphone(purposeString: "This app needs access to the microphone to record your amazing performance."),
+                .fileAccess(.moviesFolder, mode: .readWrite),
+                .fileAccess(.musicFolder, mode: .readWrite),
+                .fileAccess(.pictureFolder, mode: .readWrite),
+                .fileAccess(.downloadsFolder, mode: .readWrite),
+                .fileAccess(.userSelectedFiles, mode: .readWrite)
             ]
         )
     ],
@@ -38,9 +46,9 @@ let package = Package(
             name: "AppModule",
             path: ".",
             resources: [
-                .process("Resources") // Resources 폴더를 패키지에 포함
+                .process("Resources")
             ]
         )
     ],
-    swiftLanguageVersions: [.v6]
+    swiftLanguageVersions: [.version("6")]
 )

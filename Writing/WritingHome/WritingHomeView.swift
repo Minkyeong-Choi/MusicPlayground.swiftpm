@@ -13,9 +13,10 @@ struct WritingHomeView: View {
     @State var player: AVAudioPlayer? = nil
     @State var duration: TimeInterval = 0
     @State var isPlusClicked: Bool = false
-//    @State var fileList: (inst: String, fileURL: URL)  = ("", URL(fileURLWithPath: ""))
     @State var fileList: [(inst: String, fileURL: URL)]  = []
     @Binding var path: [String]
+    
+    var audioFunctions = AudioFunctions()
     
     var body: some View {
         ZStack {
@@ -39,10 +40,7 @@ struct WritingHomeView: View {
                 ScrollView(.horizontal) {
                     HStack {
                         Button {
-                            // 팝업뷰 띄우기
                             isPlusClicked = true
-//                            path.append("InstSelectView")
-                            //                        totalChannel += 1
                         } label: {
                             ZStack {
                                 RoundedRectangle(cornerRadius: 12)
@@ -66,7 +64,14 @@ struct WritingHomeView: View {
                                         Text("Beat")
                                         HStack {
                                             Button {
-                                                playRecordedFile(recordedFileURL: fileList[index].fileURL)
+                                                print("fileList: \(fileList)")
+//                                                audioFunctions.playRecordedFile(recordedFileURL: fileList[index].fileURL)
+                                                if audioFunctions.isValidM4AFile(url: fileList[index].fileURL) {
+                                                    audioFunctions.playRecordedFile(recordedFileURL: fileList[index].fileURL)
+                                                } else {
+                                                    print("Invalid .m4a file")
+                                                }
+
                                             } label: {
                                                 Image(systemName: "arrowtriangle.right.fill")
                                             }
@@ -133,21 +138,9 @@ struct WritingHomeView: View {
             
             if isPlusClicked {
                 InstSelectView(isPlusClicked: $isPlusClicked, fileList: $fileList, totalChannel: $totalChannel, path: $path)
-                    
+                
             }
         }
-//        .navigationDestination(for: String.self) { value in
-//                    switch value {
-//                    case "InstSelectView":
-//                        InstSelectView(isPlusClicked: $isPlusClicked, fileList: $fileList, totalChannel: $totalChannel, path: $path)
-//                    default:
-//                        EmptyView()
-//                    }
-//                }
         .navigationBarBackButtonHidden()
     }
-}
-
-#Preview {
-    WritingHomeView(path: .constant([""]))
 }

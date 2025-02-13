@@ -13,7 +13,10 @@ struct WritingHomeView: View {
     @State var player: AVAudioPlayer? = nil
     @State var duration: TimeInterval = 0
     @State var isPlusClicked: Bool = false
+    @State var fileList: [(inst: String, fileURL: URL)]  = []
     @Binding var path: [String]
+    
+    var audioFunctions = AudioFunctions()
     
     var body: some View {
         ZStack {
@@ -37,9 +40,7 @@ struct WritingHomeView: View {
                 ScrollView(.horizontal) {
                     HStack {
                         Button {
-                            // 팝업뷰 띄우기
                             isPlusClicked = true
-                            //                        totalChannel += 1
                         } label: {
                             ZStack {
                                 RoundedRectangle(cornerRadius: 12)
@@ -52,10 +53,66 @@ struct WritingHomeView: View {
                             }
                         }
                         
-                        ForEach(0..<totalChannel, id: \.self) { index in
-                            RoundedRectangle(cornerRadius: 12)
-                                .foregroundStyle(.gray)
-                                .frame(width: 150, height: 180)
+                        ForEach(0..<fileList.count, id: \.self) { index in
+                            if fileList[index].inst == "beat" {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .foregroundStyle(.gray)
+                                        .frame(width: 150, height: 180)
+                                    VStack {
+                                        Text("🥁")
+                                        Text("Beat")
+                                        HStack {
+                                            Button {
+                                                print("fileList: \(fileList)")
+//                                                audioFunctions.playRecordedFile(recordedFileURL: fileList[index].fileURL)
+                                                if audioFunctions.isValidM4AFile(url: fileList[index].fileURL) {
+                                                    audioFunctions.playRecordedFile(recordedFileURL: fileList[index].fileURL)
+                                                } else {
+                                                    print("Invalid .m4a file")
+                                                }
+
+                                            } label: {
+                                                Image(systemName: "arrowtriangle.right.fill")
+                                            }
+                                            Button {
+                                                fileList.remove(at: index)
+                                            } label: {
+                                                Image(systemName: "xmark")
+                                            }
+                                        }
+                                    }
+                                }
+                            } else if fileList[index].inst == "melody" {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .foregroundStyle(.gray)
+                                        .frame(width: 150, height: 180)
+                                    VStack {
+                                        Text("🎶")
+                                        Text("Melody")
+                                        HStack {
+                                            Image(systemName: "arrowtriangle.right.fill")
+                                            Image(systemName: "xmark")
+                                        }
+                                    }
+                                }
+                            } else {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .foregroundStyle(.gray)
+                                        .frame(width: 150, height: 180)
+                                    VStack {
+                                        Text("🔠")
+                                        Text("Lyrics")
+                                        HStack {
+                                            Image(systemName: "arrowtriangle.right.fill")
+                                            Image(systemName: "xmark")
+                                        }
+                                    }
+                                }
+                            }
+                            
                         }
                     }
                 }
@@ -80,14 +137,10 @@ struct WritingHomeView: View {
             }
             
             if isPlusClicked {
-                InstSelectView(isPlusClicked: $isPlusClicked)
-                    
+                InstSelectView(isPlusClicked: $isPlusClicked, fileList: $fileList, totalChannel: $totalChannel, path: $path)
+                
             }
         }
         .navigationBarBackButtonHidden()
     }
-}
-
-#Preview {
-    WritingHomeView(path: .constant([""]))
 }
